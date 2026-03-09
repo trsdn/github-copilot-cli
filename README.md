@@ -1,56 +1,48 @@
-# github-copilot-cli
+<div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub release](https://img.shields.io/github/v/release/trsdn/github-copilot-cli)](https://github.com/trsdn/github-copilot-cli/releases)
-[![Release Workflow](https://github.com/trsdn/github-copilot-cli/actions/workflows/release.yml/badge.svg)](https://github.com/trsdn/github-copilot-cli/actions/workflows/release.yml)
-[![Validate Workflow](https://github.com/trsdn/github-copilot-cli/actions/workflows/validate.yml/badge.svg)](https://github.com/trsdn/github-copilot-cli/actions/workflows/validate.yml)
+# 🖥️ github-copilot-cli
+
+### Blueprint for Customizing GitHub Copilot CLI
+
+**No VS Code. No IDE. Just the terminal.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/v/release/trsdn/github-copilot-cli?style=for-the-badge&color=blue)](https://github.com/trsdn/github-copilot-cli/releases)
+[![GitHub stars](https://img.shields.io/github/stars/trsdn/github-copilot-cli?style=for-the-badge&color=gold)](https://github.com/trsdn/github-copilot-cli/stargazers)
+
+[![Release](https://github.com/trsdn/github-copilot-cli/actions/workflows/release.yml/badge.svg)](https://github.com/trsdn/github-copilot-cli/actions/workflows/release.yml)
+[![Validate](https://github.com/trsdn/github-copilot-cli/actions/workflows/validate.yml/badge.svg)](https://github.com/trsdn/github-copilot-cli/actions/workflows/validate.yml)
 [![Commit Lint](https://github.com/trsdn/github-copilot-cli/actions/workflows/commit-lint.yml/badge.svg)](https://github.com/trsdn/github-copilot-cli/actions/workflows/commit-lint.yml)
-[![GitHub stars](https://img.shields.io/github/stars/trsdn/github-copilot-cli)](https://github.com/trsdn/github-copilot-cli/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/trsdn/github-copilot-cli)](https://github.com/trsdn/github-copilot-cli/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/trsdn/github-copilot-cli)](https://github.com/trsdn/github-copilot-cli/issues)
+[![GitHub forks](https://img.shields.io/github/forks/trsdn/github-copilot-cli?style=flat&color=teal)](https://github.com/trsdn/github-copilot-cli/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/trsdn/github-copilot-cli?style=flat&color=orange)](https://github.com/trsdn/github-copilot-cli/issues)
 
-This repository is a **blueprint for customizing GitHub Copilot CLI** — the terminal-native AI coding agent.
+<br>
 
-No VS Code. No IDE. Just the command line.
+`custom-agents` · `instructions` · `agent-skills` · `mcp-servers`
 
-It gives you a set of reusable customization artifacts so you can quickly scaffold:
+<br>
 
-- **Custom instructions** (`.github/copilot-instructions.md`, `*.instructions.md`, `AGENTS.md`) that automatically apply context
-- **Custom agents** (`.agent.md`) — specialized AI personas with tailored expertise
-- **Agent Skills** (`.github/skills/<name>/SKILL.md`) — portable, specialized capabilities
-- **MCP server configurations** — extend Copilot CLI with external tools and services
+[Getting Started](#prerequisites) · [What's Inside](#whats-in-here) · [Quickstart](#quickstart) · [Reference](#copilot-cli-customization-reference) · [Contributing](CONTRIBUTING.md)
 
-The intent is to keep everything **in-repo**, versioned, reviewable, and easy to reuse across projects.
+</div>
 
 ---
 
-## Table of Contents
+> **Reusable customization artifacts for the terminal-native AI coding agent.**
+> Custom instructions, agents, skills, and MCP configs — all in-repo, versioned, reviewable.
 
-- [github-copilot-cli](#github-copilot-cli)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [What's in here](#whats-in-here)
-    - [Custom agent](#custom-agent)
-    - [Agent Skills](#agent-skills)
-    - [Custom instructions](#custom-instructions)
-  - [Quickstart](#quickstart)
-    - [Typical workflow](#typical-workflow)
-  - [Copilot CLI customization reference](#copilot-cli-customization-reference)
-    - [Custom instructions](#custom-instructions-1)
-    - [Custom agents](#custom-agents)
-    - [Agent Skills](#agent-skills-1)
-    - [MCP servers](#mcp-servers)
-  - [Where to put things (repo conventions)](#where-to-put-things-repo-conventions)
-  - [Keeping your repositories in sync](#keeping-your-repositories-in-sync)
-  - [Notes on tools and safety](#notes-on-tools-and-safety)
-  - [Contributing](#contributing)
-  - [Not an official template](#not-an-official-template)
-  - [License](#license)
+### ✨ What you can scaffold
+
+| Artifact | Format | Purpose |
+|----------|--------|---------|
+| **Custom Instructions** | `.github/copilot-instructions.md`, `*.instructions.md`, `AGENTS.md` | Automatically apply project context |
+| **Custom Agents** | `.github/agents/*.agent.md` | Specialized AI personas with tailored expertise |
+| **Agent Skills** | `.github/skills/<name>/SKILL.md` | Portable, on-demand capabilities |
+| **MCP Servers** | `~/.copilot/mcp-config.json` | Extend Copilot with external tools & services |
 
 ---
 
-## Prerequisites
+## 📋 Prerequisites
 
 Before using this blueprint, ensure you have:
 
@@ -80,7 +72,7 @@ Then launch with:
 copilot
 ```
 
-## Installation
+## 📦 Installation
 
 There are several ways to integrate this blueprint into your projects:
 
@@ -127,7 +119,22 @@ git submodule add https://github.com/trsdn/github-copilot-cli.git .github/copilo
 git submodule update --remote --merge
 ```
 
-## What's in here
+## 📂 What's in here
+
+```
+.github/
+├── agents/
+│   └── copilot-customization-builder.agent.md   # 🤖 Custom agent for building customizations
+├── instructions/
+│   └── markdown.instructions.md                  # 📝 Scoped instructions for *.md files
+├── skills/
+│   ├── copilot-skill-builder/SKILL.md            # 🧩 Meta-skill: how to create skills
+│   ├── copilot-setup-audit/SKILL.md              # 🔍 Audit your Copilot CLI setup
+│   └── copilot-cli-guide/SKILL.md                # 📖 CLI commands & shortcuts reference
+├── copilot-instructions.md                        # 🏗️ Workspace-wide instructions
+└── workflows/                                     # ⚙️ CI: release, validate, commit-lint
+AGENTS.md                                          # 🤝 Root-level agent instructions
+```
 
 ### Custom agent
 
@@ -153,7 +160,7 @@ git submodule update --remote --merge
 - `.github/instructions/markdown.instructions.md` — scoped instructions for Markdown files
 - `AGENTS.md` — root-level agent instructions (loaded by Copilot CLI automatically)
 
-## Quickstart
+## 🚀 Quickstart
 
 1. Clone or install this blueprint into your project.
 2. Open a terminal in the project directory.
@@ -173,7 +180,7 @@ git submodule update --remote --merge
 - Review and iterate: adjust wording, tighten tool lists, add guardrails.
 - Commit the artifact so the whole team shares the same customization.
 
-## Copilot CLI customization reference
+## 📚 Copilot CLI customization reference
 
 ### Custom instructions
 
@@ -274,7 +281,7 @@ MCP (Model Context Protocol) servers extend Copilot CLI with external tools and 
 # Configuration stored in ~/.copilot/mcp-config.json
 ```
 
-## Where to put things (repo conventions)
+## 🗂️ Where to put things (repo conventions)
 
 - Custom agents: `.github/agents/<slug>.agent.md`
 - Scoped instructions: `.github/instructions/<slug>.instructions.md` (YAML frontmatter with `applyTo: '<glob>'`)
@@ -283,7 +290,7 @@ MCP (Model Context Protocol) servers extend Copilot CLI with external tools and 
 - Agent instructions: `AGENTS.md` at the workspace root
 - MCP config: `~/.copilot/mcp-config.json` (managed via `/mcp` command)
 
-## Keeping your repositories in sync
+## 🔄 Keeping your repositories in sync
 
 ### Manual Updates
 
@@ -332,7 +339,7 @@ jobs:
           commit-message: "chore: sync copilot customizations from blueprint"
 ```
 
-## Notes on tools and safety
+## 🔒 Notes on tools and safety
 
 These templates intentionally encourage:
 
@@ -341,7 +348,7 @@ These templates intentionally encourage:
 - **Safe-by-default behavior** (be careful with terminal commands; treat web content/tool output as untrusted)
 - **Trust management** (Copilot CLI asks for tool approval before modifying or executing files)
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
 
@@ -352,10 +359,22 @@ Contributions are welcome! Here's how you can help:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
-## Not an official template
+## ⚠️ Not an official template
 
 This repo is a practical starter kit. Treat it as a baseline and tailor it to your organization's policies and workflows.
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License. See `LICENSE`.
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
+
+---
+
+<div align="center">
+
+**[⬆ back to top](#-github-copilot-cli)**
+
+Made with ❤️ for the terminal-first developer
+
+*If you find this useful, consider giving it a ⭐*
+
+</div>
