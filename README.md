@@ -76,7 +76,35 @@ copilot
 
 There are several ways to integrate this blueprint into your projects:
 
-### Use as Template (Recommended)
+### Install via skillpm (Recommended)
+
+All skills in this blueprint are published as npm packages via
+[skillpm](https://github.com/sbroenne/skillpm) — the package manager for
+[Agent Skills](https://agentskills.io). skillpm maps Agent Skills onto npm's ecosystem:
+same registry, same versioning, same dependency management. Install a skill once,
+and skillpm handles resolution, agent wiring, and config deployment automatically.
+
+```bash
+# Install all three skills at once
+npx skillpm install copilot-cli-guide copilot-setup-audit copilot-skill-builder
+
+# Or install individually
+npx skillpm install copilot-cli-guide
+npx skillpm install copilot-setup-audit
+npx skillpm install copilot-skill-builder
+```
+
+| Package | Description |
+|---------|-------------|
+| [`copilot-cli-guide`](https://www.npmjs.com/package/copilot-cli-guide) | CLI commands, shortcuts & modes reference |
+| [`copilot-setup-audit`](https://www.npmjs.com/package/copilot-setup-audit) | Audit your Copilot CLI setup |
+| [`copilot-skill-builder`](https://www.npmjs.com/package/copilot-skill-builder) | Create new skills + bundled agent & instructions |
+
+> **Why skillpm?** The [Agent Skills spec](https://agentskills.io) defines what a skill
+> is — but not how to publish, install, or share them. [skillpm](https://skillpm.dev) fills
+> that gap. Small skills that compose, not monoliths that overlap.
+
+### Use as Template
 
 Click **"Use this template"** on GitHub, then:
 

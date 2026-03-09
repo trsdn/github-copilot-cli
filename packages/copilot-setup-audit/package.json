@@ -1,0 +1,28 @@
+{
+  "name": "copilot-setup-audit",
+  "version": "1.0.0",
+  "description": "Agent Skill — Audit a repository's Copilot CLI customization setup and suggest improvements",
+  "keywords": [
+    "agent-skill",
+    "copilot",
+    "copilot-cli",
+    "github-copilot",
+    "audit"
+  ],
+  "homepage": "https://github.com/trsdn/github-copilot-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trsdn/github-copilot-cli.git",
+    "directory": "packages/copilot-setup-audit"
+  },
+  "bugs": {
+    "url": "https://github.com/trsdn/github-copilot-cli/issues"
+  },
+  "author": "Torsten Mahr",
+  "license": "MIT",
+  "files": [
+    "skills",
+    "README.md",
+    "LICENSE"
+  ]
+}
