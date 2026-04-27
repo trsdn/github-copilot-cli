@@ -81,7 +81,7 @@ When creating agents in `.github/agents/`:
 - Specify minimal necessary tools (security principle)
 - Include comprehensive instructions
 - Document limitations and use cases
-- Avoid VS Code-specific features (prompt files, hooks, plugins)
+- Prefer Copilot CLI-native schemas and paths; preserve VS Code compatibility where the same artifact format overlaps
 - Test by running `/agent` in Copilot CLI
 
 ### Instructions Files

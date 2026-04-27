@@ -1,6 +1,6 @@
 ---
 name: copilot-skill-builder
-description: A meta-skill that teaches how to create and maintain Agent Skills for Copilot CLI. Use this skill when the user wants to create a new skill, understand skill format, or learn best practices for writing SKILL.md files.
+description: A meta-skill that teaches how to create and maintain Agent Skills for Copilot CLI. Use this skill when the user wants to create a new skill, understand skill frontmatter, configure allowed-tools, choose skill locations, or learn best practices for writing SKILL.md files.
 ---
 
 # Skill Builder
@@ -32,7 +32,10 @@ Every skill lives in its own directory and must contain a `SKILL.md` file:
 ---
 name: skill-name
 description: What the skill does and when Copilot should use it. Be specific to help Copilot decide when to load this skill.
-license: MIT  # Optional
+license: MIT
+allowed-tools: read, grep
+user-invocable: true
+disable-model-invocation: false
 ---
 
 # Skill Title
@@ -66,14 +69,21 @@ Overview of what this skill accomplishes.
 | `name` | ✅ Yes | Unique identifier, lowercase with hyphens, max 64 chars |
 | `description` | ✅ Yes | What it does and when to use it, max 1024 chars |
 | `license` | ❌ No | License information for the skill |
+| `allowed-tools` | ❌ No | Comma-separated string or YAML array of tools to allow when active |
+| `user-invocable` | ❌ No | Whether users can invoke the skill with `/skill-name`; defaults to true |
+| `disable-model-invocation` | ❌ No | Prevents automatic model invocation; defaults to false |
 
 ## Skill Locations
 
 | Type | Location | Scope |
 |------|----------|-------|
 | Project skills | `.github/skills/<name>/SKILL.md` | Current repository |
+| Project skills | `.agents/skills/<name>/SKILL.md` | Current repository, cross-agent standard |
+| Project skills | `.claude/skills/<name>/SKILL.md` | Current repository, Claude-compatible |
 | Personal skills | `~/.copilot/skills/<name>/SKILL.md` | All your projects |
-| Alternative | `.claude/skills/<name>/SKILL.md` | Cross-tool compatible |
+| Personal skills | `~/.agents/skills/<name>/SKILL.md` | Shared across agent tools |
+| Custom locations | `COPILOT_SKILLS_DIRS` | Additional comma-separated directories |
+| Plugin skills | `<plugin>/skills/<name>/SKILL.md` | Installed plugin scope |
 
 ## Best Practices
 
@@ -109,6 +119,9 @@ as a starting point.
 
 To run validation, execute the script at [validate](./scripts/validate.sh).
 ```
+
+Only use `allowed-tools: shell` or `allowed-tools: bash` for skills and scripts you fully trust. When in doubt,
+omit shell tools so Copilot asks before running commands.
 
 ## Managing Skills in Copilot CLI
 

@@ -53,5 +53,5 @@ Closes #
 - [ ] My changes follow the style guidelines of this project
 - [ ] I have performed a self-review
 - [ ] I have updated documentation as needed
-- [ ] My changes don't include VS Code-specific features
+- [ ] My changes are Copilot CLI-first and preserve VS Code compatibility where formats overlap
 - [ ] I have tested with Copilot CLI

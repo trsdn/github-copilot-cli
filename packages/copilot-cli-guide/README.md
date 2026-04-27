@@ -27,9 +27,13 @@ npx skillpm install copilot-cli-guide
 - **Modes** — interactive, plan, and autopilot
 - **Context management** — file inclusion, token usage, directories
 - **Session management** — resume, rename, share
-- **MCP & LSP configuration** — setup and usage
+- **MCP & LSP configuration** — built-in MCP servers, repo/workspace/user config, setup and usage
 - **Custom instructions locations** — where Copilot reads instructions from
-- **CLI flags** — useful startup options
+- **Hooks and plugins** — lifecycle automation and plugin management commands
+- **CLI flags** — startup modes, permissions, tools, and config options
+- **Programmatic usage** — prompt mode, JSON output, token environment variables, and automation guidance
+- **Permission patterns** — scoped allow/deny rules for shell, URL, MCP, read, and write access
+- **Built-in agents and monitoring** — when to use built-ins and how to enable OpenTelemetry
 
 ## When does Copilot load this skill?
 

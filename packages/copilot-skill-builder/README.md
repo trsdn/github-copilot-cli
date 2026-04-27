@@ -25,6 +25,8 @@ npx skillpm install copilot-skill-builder
 ### Skill: copilot-skill-builder
 
 - **SKILL.md format reference** — frontmatter fields, body structure, best practices
+- **Current frontmatter fields** — `name`, `description`, `license`, `allowed-tools`, `user-invocable`,
+  and `disable-model-invocation`
 - **Skill locations** — project, personal, and alternative directories
 - **Writing effective descriptions** — good vs bad examples
 - **Including scripts and resources** — relative path references
@@ -41,7 +43,7 @@ On `skillpm install`, the following config files are automatically deployed to y
 | `markdown.instructions.md` | `.github/instructions/copilot-markdown.instructions.md` |
 
 The **Copilot Customization Builder** agent helps create and maintain agents, instructions,
-skills, and MCP configurations — all targeting Copilot CLI.
+skills, hooks, plugins, and MCP configurations — CLI-first, and VS Code-friendly where formats overlap.
 
 On `skillpm uninstall`, deployed configs are cleaned up automatically via the
 [skillpm manifest](https://skillpm.dev/creating-skills/#bundling-agent-configs-rules-and-prompts).

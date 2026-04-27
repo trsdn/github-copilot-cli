@@ -4,7 +4,7 @@
 
 ### Blueprint for Customizing GitHub Copilot CLI
 
-**No VS Code. No IDE. Just the terminal.**
+**CLI-first. VS Code-friendly. Versioned in your repo.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![GitHub release](https://img.shields.io/github/v/release/trsdn/github-copilot-cli?style=for-the-badge&color=blue)](https://github.com/trsdn/github-copilot-cli/releases)
@@ -18,7 +18,7 @@
 
 <br>
 
-`custom-agents` · `instructions` · `agent-skills` · `mcp-servers`
+`custom-agents` · `instructions` · `agent-skills` · `hooks` · `plugins` · `mcp-servers`
 
 <br>
 
@@ -28,8 +28,8 @@
 
 ---
 
-> **Reusable customization artifacts for the terminal-native AI coding agent.**
-> Custom instructions, agents, skills, and MCP configs — all in-repo, versioned, reviewable.
+> **Reusable customization artifacts for GitHub Copilot CLI, including use from the VS Code terminal.**
+> Custom instructions, agents, skills, hooks, plugins, and MCP configs — versioned, reviewable, and portable.
 
 ### ✨ What you can scaffold
 
@@ -38,7 +38,9 @@
 | **Custom Instructions** | `.github/copilot-instructions.md`, `*.instructions.md`, `AGENTS.md` | Automatically apply project context |
 | **Custom Agents** | `.github/agents/*.agent.md` | Specialized AI personas with tailored expertise |
 | **Agent Skills** | `.github/skills/<name>/SKILL.md` | Portable, on-demand capabilities |
-| **MCP Servers** | `~/.copilot/mcp-config.json` | Extend Copilot with external tools & services |
+| **Hooks** | `.github/hooks/*.json` | Deterministic lifecycle automation and policy checks |
+| **Plugins** | `copilot plugin`, `/plugin` | Install packaged agents, skills, commands, and tools |
+| **MCP Servers** | `.github/mcp.json`, `.mcp.json`, `~/.copilot/mcp-config.json` | Extend Copilot with external tools and services |
 
 ---
 
@@ -159,6 +161,8 @@ git submodule update --remote --merge
 │   ├── copilot-skill-builder/SKILL.md            # 🧩 Meta-skill: how to create skills
 │   ├── copilot-setup-audit/SKILL.md              # 🔍 Audit your Copilot CLI setup
 │   └── copilot-cli-guide/SKILL.md                # 📖 CLI commands & shortcuts reference
+├── hooks/                                        # Optional: Copilot CLI hook configs (*.json)
+├── mcp.json                                      # Optional: repository MCP configuration
 ├── copilot-instructions.md                        # 🏗️ Workspace-wide instructions
 └── workflows/                                     # ⚙️ CI: release, validate, commit-lint
 AGENTS.md                                          # 🤝 Root-level agent instructions
@@ -168,7 +172,10 @@ AGENTS.md                                          # 🤝 Root-level agent instr
 
 - `.github/agents/copilot-customization-builder.agent.md`
   - Agent name: **Copilot Customization Builder**
-  - Purpose: create and maintain Copilot CLI customization artifacts (agents, instructions, skills, MCP guidance)
+  - Purpose: create and maintain Copilot CLI customization artifacts (agents, instructions, skills, hooks, plugins,
+    MCP guidance)
+  - Frontmatter supports `description`, `name`, `target`, `tools`, `model`, `mcp-servers`, `user-invocable`, and
+    `disable-model-invocation`
 
 ### Agent Skills
 
@@ -199,6 +206,7 @@ AGENTS.md                                          # 🤝 Root-level agent instr
    - "Create a new skill for debugging GitHub Actions"
    - "Create scoped instructions for TypeScript files"
    - "Set up MCP servers for this project"
+  - "Create a policy hook for shell commands"
 
 ### Typical workflow
 
@@ -239,8 +247,9 @@ Custom agents are specialized AI personas with tailored expertise and tool acces
 | Type | Location | Scope |
 |------|----------|-------|
 | Repository-level | `.github/agents/*.agent.md` | Current project |
+| Alternative project | `.claude/agents/*.agent.md` | Current project |
 | User-level | `~/.copilot/agents/*.agent.md` | All your projects |
-| Org/Enterprise | `agents/` in `.github-private` repo | All org/enterprise projects |
+| Plugin | `<plugin>/agents/*.agent.md` | Installed plugin scope |
 
 Agent files use YAML frontmatter + Markdown body:
 
@@ -248,6 +257,7 @@ Agent files use YAML frontmatter + Markdown body:
 ---
 name: my-agent
 description: Specialized agent for X
+target: github-copilot
 tools: ['read', 'edit', 'search', 'bash']
 ---
 # My Agent
@@ -274,8 +284,11 @@ Agent Skills are portable folders of instructions, scripts, and resources that C
 | Type | Location |
 |------|----------|
 | Project skills | `.github/skills/<name>/SKILL.md` |
+| Alternative project skills | `.agents/skills/<name>/SKILL.md` |
 | Personal skills | `~/.copilot/skills/<name>/SKILL.md` |
-| Alternative | `.claude/skills/<name>/SKILL.md` |
+| Shared personal skills | `~/.agents/skills/<name>/SKILL.md` |
+| Claude-compatible project skills | `.claude/skills/<name>/SKILL.md` |
+| Custom skill directories | `COPILOT_SKILLS_DIRS` |
 
 SKILL.md uses YAML frontmatter:
 
@@ -283,6 +296,10 @@ SKILL.md uses YAML frontmatter:
 ---
 name: my-skill
 description: What it does and when to use it
+license: MIT
+# Optional: allowed-tools: read, grep
+# Optional: user-invocable: true
+# Optional: disable-model-invocation: false
 ---
 # My Skill
 Step-by-step instructions for Copilot to follow...
@@ -296,27 +313,99 @@ Manage skills in Copilot CLI:
 /skills info     # Details about a skill
 /skills reload   # Reload after adding new skills
 /skills add      # Add alternative skill location
+/skills remove   # Remove a skill directory
+```
+
+Use `allowed-tools` sparingly. Pre-approving `shell` or `bash` should be reserved for skills and scripts that are
+fully trusted.
+
+### Hooks
+
+Copilot CLI hooks are JSON files loaded from `.github/hooks/*.json`. They can run commands, call HTTPS endpoints,
+or submit a prompt at `sessionStart`.
+
+Common use cases:
+
+- Enforce permission decisions for risky tools with `permissionRequest`.
+- Add policy context before a command with `preToolUse`.
+- Notify external systems when agents or shell commands complete.
+- Inject project-specific startup context with a `sessionStart` prompt hook.
+
+Minimal hook skeleton:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "./scripts/copilot-pre-tool-use.sh",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
 ```
 
 ### MCP servers
 
-MCP (Model Context Protocol) servers extend Copilot CLI with external tools and services. The GitHub MCP server is included by default.
+MCP (Model Context Protocol) servers extend Copilot CLI with external tools and services. Built-in servers include
+GitHub, Playwright, fetch, and time.
 
 ```bash
 # Add a new MCP server
 /mcp add
 
-# Configuration stored in ~/.copilot/mcp-config.json
+# Or manage MCP from the shell
+copilot mcp list
+copilot mcp add NAME -- COMMAND ARGS...
 ```
+
+Configuration can live in multiple places:
+
+```text
+.github/mcp.json              # Repository-level MCP config
+.mcp.json                     # Workspace-level MCP config
+~/.copilot/mcp-config.json    # User-level MCP config
+```
+
+Use `.mcp.json` when migrating from VS Code's `.vscode/mcp.json` format; the CLI format uses `mcpServers`.
+
+### Plugins
+
+Plugins package reusable Copilot CLI extensions. They can provide skills, agents, commands, and integrations.
+
+```bash
+/plugin list
+/plugin marketplace
+/plugin install
+```
+
+### Advanced CLI features
+
+For teams that run Copilot CLI beyond an interactive terminal session, also document these areas:
+
+- **Programmatic use:** `copilot --prompt`, `--interactive`, `--output-format=json`, `--silent`, `--share`, and
+  explicit permission flags for CI or scripts.
+- **Permission policy:** use `--allow-tool`, `--deny-tool`, `--allow-url`, and `--deny-url` patterns such as
+  `shell(git:*)`, `shell(git push)`, `url(github.com)`, or `SERVER(tool)`.
+- **Built-in agents:** know when to use `explore`, `research`, `task`, `code-review`, and `general-purpose` before
+  adding a project-specific custom agent.
+- **Monitoring:** OpenTelemetry can export traces and metrics for agent turns, LLM calls, tool execution, token usage,
+  and errors. Keep content capture disabled unless the environment is trusted.
+- **Advanced MCP:** review OAuth re-authentication, OIDC, `filterMapping`, enterprise allowlists, and
+  `--additional-mcp-config` when connecting non-default servers.
 
 ## 🗂️ Where to put things (repo conventions)
 
 - Custom agents: `.github/agents/<slug>.agent.md`
 - Scoped instructions: `.github/instructions/<slug>.instructions.md` (YAML frontmatter with `applyTo: '<glob>'`)
 - Agent Skills: `.github/skills/<name>/SKILL.md` (plus optional scripts/examples in the skill directory)
+- Hooks: `.github/hooks/<slug>.json`
 - Workspace instructions: `.github/copilot-instructions.md`
 - Agent instructions: `AGENTS.md` at the workspace root
-- MCP config: `~/.copilot/mcp-config.json` (managed via `/mcp` command)
+- MCP config: `.github/mcp.json`, `.mcp.json`, or `~/.copilot/mcp-config.json` (managed via `/mcp` or `copilot mcp`)
 
 ## 🔄 Keeping your repositories in sync
 
@@ -355,9 +444,11 @@ jobs:
 
       - name: Sync customizations
         run: |
+          mkdir -p .github/skills .github/agents .github/instructions .github/hooks
           cp -r /tmp/blueprint/.github/skills/* .github/skills/ 2>/dev/null || true
           cp -r /tmp/blueprint/.github/agents/* .github/agents/ 2>/dev/null || true
           cp -r /tmp/blueprint/.github/instructions/* .github/instructions/ 2>/dev/null || true
+          cp -r /tmp/blueprint/.github/hooks/* .github/hooks/ 2>/dev/null || true
 
       - name: Create PR if changes
         uses: peter-evans/create-pull-request@v5
@@ -375,6 +466,7 @@ These templates intentionally encourage:
 - **Incremental changes** (small diffs; validate formats and paths)
 - **Safe-by-default behavior** (be careful with terminal commands; treat web content/tool output as untrusted)
 - **Trust management** (Copilot CLI asks for tool approval before modifying or executing files)
+- **Hook safety** (policy hooks should be narrow, observable, and fail predictably)
 
 ## 🤝 Contributing
 

@@ -21,7 +21,8 @@ npx skillpm install copilot-setup-audit
 
 ## What's included
 
-- **Comprehensive audit checklist** covering instructions, agents, skills, and MCP configuration
+- **Comprehensive audit checklist** covering instructions, agents, skills, hooks, plugins, and MCP configuration
+- **Advanced CLI checks** for permission policy, programmatic usage, OpenTelemetry, and built-in agents
 - **Project-type detection** with language-specific recommendations
 - **Structured report format** with actionable findings (✅ / ⚠️ / ❌ / 💡)
 - **Diagnostic commands** to run in your Copilot CLI session

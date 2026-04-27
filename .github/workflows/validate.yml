@@ -8,6 +8,9 @@ on:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
+      - ".github/hooks/**"
+      - ".github/mcp.json"
+      - ".mcp.json"
   push:
     branches:
       - main
@@ -15,6 +18,9 @@ on:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
+      - ".github/hooks/**"
+      - ".github/mcp.json"
+      - ".mcp.json"
   workflow_dispatch:
 
 permissions:
@@ -142,6 +148,82 @@ jobs:
 
           echo "error_count_instructions=$ERROR_COUNT" >> $GITHUB_OUTPUT
 
+      - name: Validate Hook Files
+        id: validate_hooks
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🪝 Hook Validation" >> $GITHUB_STEP_SUMMARY
+          ERROR_COUNT=0
+
+          if [ -d ".github/hooks" ]; then
+            HOOKS=$(find .github/hooks -name "*.json" | sort)
+
+            if [ -z "$HOOKS" ]; then
+              echo "✅ No hook files found" >> $GITHUB_STEP_SUMMARY
+            else
+              for file in $HOOKS; do
+                echo "Checking: $file"
+
+                if ! jq empty "$file" >/dev/null 2>&1; then
+                  echo "❌ Invalid JSON: $file" >> $GITHUB_STEP_SUMMARY
+                  ERROR_COUNT=$((ERROR_COUNT + 1))
+                  continue
+                fi
+
+                VERSION=$(jq -r '.version // empty' "$file")
+                if [ "$VERSION" != "1" ]; then
+                  echo "❌ Missing or invalid version: $file" >> $GITHUB_STEP_SUMMARY
+                  ERROR_COUNT=$((ERROR_COUNT + 1))
+                fi
+
+                if ! jq -e '.hooks | type == "object"' "$file" >/dev/null 2>&1; then
+                  echo "❌ Missing hooks object: $file" >> $GITHUB_STEP_SUMMARY
+                  ERROR_COUNT=$((ERROR_COUNT + 1))
+                else
+                  echo "✅ Valid structure: $file" >> $GITHUB_STEP_SUMMARY
+                fi
+              done
+            fi
+          else
+            echo "ℹ️  No hooks directory found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "error_count_hooks=$ERROR_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Validate MCP Configuration
+        id: validate_mcp
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔌 MCP Validation" >> $GITHUB_STEP_SUMMARY
+          ERROR_COUNT=0
+
+          for file in .github/mcp.json .mcp.json; do
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            echo "Checking: $file"
+
+            if ! jq empty "$file" >/dev/null 2>&1; then
+              echo "❌ Invalid JSON: $file" >> $GITHUB_STEP_SUMMARY
+              ERROR_COUNT=$((ERROR_COUNT + 1))
+              continue
+            fi
+
+            if ! jq -e '.mcpServers | type == "object"' "$file" >/dev/null 2>&1; then
+              echo "❌ Missing mcpServers object: $file" >> $GITHUB_STEP_SUMMARY
+              ERROR_COUNT=$((ERROR_COUNT + 1))
+            else
+              echo "✅ Valid structure: $file" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          if [ ! -f ".github/mcp.json" ] && [ ! -f ".mcp.json" ]; then
+            echo "ℹ️  No repository or workspace MCP config found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "error_count_mcp=$ERROR_COUNT" >> $GITHUB_OUTPUT
+
       - name: Check for Broken Links
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -180,7 +262,9 @@ jobs:
           TOTAL_ERRORS=$((
             ${{ steps.validate_agents.outputs.error_count_agents }} +
             ${{ steps.validate_skills.outputs.error_count_skills }} +
-            ${{ steps.validate_instructions.outputs.error_count_instructions }}
+            ${{ steps.validate_instructions.outputs.error_count_instructions }} +
+            ${{ steps.validate_hooks.outputs.error_count_hooks }} +
+            ${{ steps.validate_mcp.outputs.error_count_mcp }}
           ))
 
           echo "" >> $GITHUB_STEP_SUMMARY
